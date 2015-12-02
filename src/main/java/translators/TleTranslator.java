@@ -1,5 +1,7 @@
 package translators;
 
+import constants.PlanetConstants;
+
 import agi.foundation.DateMotionCollection1;
 import agi.foundation.celestial.CentralBodiesFacet;
 import agi.foundation.celestial.EarthCentralBody;
@@ -62,12 +64,12 @@ public class TleTranslator {
     /**
      * Gets semi-major axis from mean motion
      * (source: http://satelliteorbitdetermination.com/orbit_elements_wiki.htm).
-     * @return Semi-major axis in Earth radii.
+     * @return Semi-major axis in meters.
      */
     private double getSemiMajorAxis() {
 
         double meanMotion = this.tle.getMeanMotion();
-        return 6.6228 / Math.pow(meanMotion, 2 / 3);
+        return (6.6228 / Math.pow(meanMotion, 2 / 3)) * PlanetConstants.EarthRadiusM;
     }
 
     /**
