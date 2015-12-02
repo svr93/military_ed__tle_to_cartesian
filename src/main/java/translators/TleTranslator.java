@@ -60,6 +60,17 @@ public class TleTranslator {
     }
 
     /**
+     * Gets semi-major axis from mean motion
+     * (source: http://satelliteorbitdetermination.com/orbit_elements_wiki.htm).
+     * @return Semi-major axis in Earth radii.
+     */
+    private double getSemiMajorAxis() {
+
+        double meanMotion = this.tle.getMeanMotion();
+        return 6.6228 / Math.pow(meanMotion, 2 / 3);
+    }
+
+    /**
      * Creates Julian date from current date data.
      * @param year The year.
      * @param monthOfYear The month of the year, from 1 to 12.
