@@ -26,5 +26,7 @@ public class Main {
 
         Map<DateTime, Cartesian> result = tleTranslator.propagate(startDate, stopDate, interval);
         result.forEach((key, value) -> System.out.println(key + " " + value));
+
+        System.out.println(tleTranslator.convertToKeplerianElements().getOrbitType());
     }
 }

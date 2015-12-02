@@ -2,6 +2,8 @@ package translators;
 
 import constants.PlanetConstants;
 
+import agi.foundation.Constants;
+import agi.foundation.coordinates.KeplerianElements;
 import agi.foundation.DateMotionCollection1;
 import agi.foundation.celestial.CentralBodiesFacet;
 import agi.foundation.celestial.EarthCentralBody;
@@ -73,6 +75,32 @@ public class TleTranslator {
     }
 
     /**
+     * Gets true anomaly from mean anomaly.
+     * (source: http://www.stargazing.net/kepler/kepler.html#twig02b).
+     * Analog: `KeplerianElements instance`.meanAnomalyToTrueAnomaly().
+     * @param meanAnomalyR Mean anomaly in radians.
+     * @param ecc The eccentricity of the orbit.
+     * @return True anomaly in radians.
+     */
+    private double getTrueAnomaly(double meanAnomalyR, double ecc) {
+
+        final double eps14 = Constants.Epsilon14;
+
+        double e = meanAnomalyR;
+        double delta = 0.1;
+        double twoPi = Constants.TwoPi;
+
+        while (Math.abs(delta) >= eps14) {
+
+            delta = e - ecc * Math.sin(e) - meanAnomalyR;
+            e = e - delta / (1 - ecc * Math.cos(e));
+        }
+        double v = 2 * Math.atan(Math.sqrt((1 + ecc) / (1 - ecc)) * Math.tan(0.5 * e));
+        if (v < 0) { v = v + twoPi; }
+        return v;
+    }
+
+    /**
      * Creates Julian date from current date data.
      * @param year The year.
      * @param monthOfYear The month of the year, from 1 to 12.
@@ -122,5 +150,32 @@ public class TleTranslator {
             resMap.put(dates.get(i).toDateTime(), coordinates.get(i));
         }
         return resMap;
+    }
+
+    public KeplerianElements convertToKeplerianElements() {
+
+        final double radiansPerDegree = Constants.RadiansPerDegree;
+
+        final double semiMajorAxisM = this.getSemiMajorAxis();
+        final double eccentricity = this.tle.getEccentricity();
+
+        final double inclinationR = this.tle.getInclination() * radiansPerDegree;
+        final double argumentOfPerigeeR = this.tle.getArgumentOfPerigee() * radiansPerDegree;
+        final double rightAscensionOfAscendingNodeR = this.tle.getRightAscensionOfAscendingNode() *
+            radiansPerDegree;
+
+        final double meanAnomalyR = this.tle.getMeanAnomaly() * radiansPerDegree;
+        final double trueAnomalyR = this.getTrueAnomaly(meanAnomalyR, eccentricity);
+        final double gravitationalParameterSI = PlanetConstants.gravitationalParameterSI;
+
+        return new KeplerianElements(
+            semiMajorAxisM,
+            eccentricity,
+            inclinationR,
+            argumentOfPerigeeR,
+            rightAscensionOfAscendingNodeR,
+            trueAnomalyR,
+            gravitationalParameterSI
+        );
     }
 }

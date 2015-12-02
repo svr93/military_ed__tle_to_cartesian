@@ -6,4 +6,5 @@ package constants;
 public class PlanetConstants {
 
     public static final int EarthRadiusM = 6371000;
+    public static final double gravitationalParameterSI = 3.986004419 * Math.pow(10, 14);
 }
