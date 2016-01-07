@@ -5,6 +5,9 @@ import org.joda.time.DateTime;
 
 import java.util.Map;
 
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 import translators.TleTranslator;
 
 /**
@@ -25,8 +28,18 @@ public class Main {
         final double interval = 3600; // time step in seconds
 
         Map<DateTime, Cartesian> result = tleTranslator.propagate(startDate, stopDate, interval);
-        result.forEach((key, value) -> System.out.println(key + " " + value));
+        JSONObject obj = new JSONObject();
 
-        System.out.println(tleTranslator.convertToKeplerianElements().getOrbitType());
+        result.forEach((key, value) -> {
+
+            JSONArray arr = new JSONArray();
+
+            arr.put(value.getX());
+            arr.put(value.getY());
+            arr.put(value.getZ());
+
+            obj.put(key.toString(), arr);
+        });
+        System.out.println(obj);
     }
 }
