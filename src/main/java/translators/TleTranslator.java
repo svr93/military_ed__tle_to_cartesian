@@ -15,6 +15,8 @@ import agi.foundation.time.Duration;
 import agi.foundation.time.JulianDate;
 
 import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,6 +31,7 @@ public class TleTranslator {
 
     private Sgp4Propagator sgp4Propagator = null;
     private ReferenceFrame rf = null;
+    private String rfName = null;
 
     private void initPropagatorSettings(String targetCS) {
 
@@ -54,9 +57,11 @@ public class TleTranslator {
         if (targetCS.equals("ECEF")) {
 
             this.rf = earth.getFixedFrame();
+            this.rfName = "FIXED";
         } else if (targetCS.equals("ECI")) {
 
             this.rf = earth.getInertialFrame();
+            this.rfName = "INERTIAL";
         } else {
 
             throw new Error("Coordinate system is not supported");
@@ -155,6 +160,36 @@ public class TleTranslator {
             resMap.put(dates.get(i).toDateTime(), coordinates.get(i));
         }
         return resMap;
+    }
+
+    public JSONObject propagateJSON(JulianDate startDate, JulianDate stopDate, double interval) {
+
+        DateMotionCollection1<Cartesian> collection = this.propagateInitialData(
+        startDate, stopDate, interval);
+
+        List<JulianDate> dates = collection.getDates();
+        List<Cartesian> coordinates = collection.getValues();
+
+        int size = collection.getCount();
+        JSONObject resObj = new JSONObject();
+
+        JSONObject position = new JSONObject();
+        position.put("referenceFrame", this.rfName);
+
+        JSONArray cartesian = new JSONArray();
+        for (int i = 0; i < size; ++i) {
+
+            cartesian.put(dates.get(i).toDateTime());
+
+            Cartesian coordinate = coordinates.get(i);
+            cartesian.put(coordinate.getX());
+            cartesian.put(coordinate.getY());
+            cartesian.put(coordinate.getZ());
+        }
+        position.put("cartesian", cartesian);
+        resObj.put("position", position);
+
+        return resObj;
     }
 
     public KeplerianElements convertToKeplerianElements() {
