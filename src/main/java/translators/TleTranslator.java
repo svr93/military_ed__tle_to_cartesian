@@ -123,6 +123,13 @@ public class TleTranslator {
         this.initPropagatorSettings(targetCS);
     }
 
+    protected DateMotionCollection1<Cartesian> propagateInitialData(
+        JulianDate startDate, JulianDate stopDate, double interval) {
+
+        Duration timeStep = new Duration(0, interval);
+        return this.sgp4Propagator.propagate(startDate, stopDate, timeStep, 0, this.rf);
+    }
+
     /**
      * Calculates points.
      * @param startDate Start date for computation.
@@ -134,10 +141,8 @@ public class TleTranslator {
         JulianDate startDate, JulianDate stopDate, double interval
     ) {
 
-        Duration timeStep = new Duration(0, interval);
-        DateMotionCollection1<Cartesian> collection = this.sgp4Propagator.propagate(
-            startDate, stopDate, timeStep, 0, this.rf
-        );
+        DateMotionCollection1<Cartesian> collection = this.propagateInitialData(
+            startDate, stopDate, interval);
 
         List<JulianDate> dates = collection.getDates();
         List<Cartesian> coordinates = collection.getValues();
