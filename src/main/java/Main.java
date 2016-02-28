@@ -27,19 +27,7 @@ public class Main {
 
         final double interval = 3600; // time step in seconds
 
-        Map<DateTime, Cartesian> result = tleTranslator.propagate(startDate, stopDate, interval);
-        JSONObject obj = new JSONObject();
-
-        result.forEach((key, value) -> {
-
-            JSONArray arr = new JSONArray();
-
-            arr.put(value.getX());
-            arr.put(value.getY());
-            arr.put(value.getZ());
-
-            obj.put(key.toString(), arr);
-        });
+        JSONObject obj = tleTranslator.propagateJSON(startDate, stopDate, interval);
         System.out.println(obj);
     }
 }
