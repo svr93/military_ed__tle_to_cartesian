@@ -23,9 +23,9 @@ public class Main {
             "ECEF" // rotates with the Earth
         );
         JulianDate startDate = TleTranslator.createJulianDate(2015, 11, 26, 0, 0);
-        JulianDate stopDate = TleTranslator.createJulianDate(2015, 11, 27, 0, 0);
+        JulianDate stopDate = TleTranslator.createJulianDate(2016, 06, 01, 0, 0);
 
-        final double interval = 3600; // time step in seconds
+        final double interval = 60 * 60 * 24 * 7; // time step in seconds
 
         JSONObject obj = tleTranslator.propagateJSON(startDate, stopDate, interval);
         System.out.println(obj);
